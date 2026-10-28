@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Research Agent</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+   <div class="app-layout">
+
+    <aside class="sidebar">
+        <h2>AI Research Agent</h2>
+
+        <button id="new-chat-btn" onclick="newChat()">
+            + New Chat
+        </button>
+
+        <div id="history-list"></div>
+    </aside>
+
+    <main class="container">
+
+      <div class="chat-prompt" id="chat-prompt">
+        What is on your mind today?
+    </div>
+
+        <div class="search-box">
+            <input
+                type="text"
+                id="question"
+                placeholder="Ask a research question..."
+            >
+
+           <button type="button" id="research-btn" onclick="askQuestion()">
+                Research
+            </button>
+        </div>
+
+
+        <div class="answer-box">
+            <div id="answer"></div>
+        </div>
+                
+
+            
+        </div>
+    </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+
+   
+
+<script>
+    let chats = JSON.parse(localStorage.getItem("researchChats") || "[]");
+    let currentChatId = null;
+    let isResearching = false;
+
+    function saveChats() {
+        localStorage.setItem("researchChats", JSON.stringify(chats));
+    }
+
+    function renderHistory() {
+        const list = document.getElementById("history-list");
+        if (!list) return;
+
+        list.innerHTML = "";
+
+        [...chats].reverse().forEach(chat => {
+            const item = document.createElement("div");
+            item.className = "history-item" +
+                (chat.id === currentChatId ? " active" : "");
+            item.textContent = chat.title;
+            item.onclick = () => openChat(chat.id);
+            list.appendChild(item);
+        });
+    }
+
+    function renderAnswer(answer) {
+        document.getElementById("answer").innerHTML =
+            DOMPurify.sanitize(marked.parse(answer || ""));
+    }
+
+  
+function openChat(id) {
+    const chat = chats.find(c => c.id === id);
+    if (!chat) return;
+
+    currentChatId = id;
+    const prompt = document.getElementById("chat-prompt");
+    if (prompt) {
+        prompt.style.display = "none";
+    }
+    document.getElementById("question").value = "";
+
+    const answerBox = document.getElementById("answer");
+    answerBox.innerHTML = "";
+
+    chat.messages.forEach(message => {
+        const section = document.createElement("div");
+        section.className = message.role === "user"
+            ? "message user-message"
+            : "message assistant-message";
+
+        const content = document.createElement("div");
+
+        if (message.role === "assistant") {
+            content.innerHTML =
+                DOMPurify.sanitize(marked.parse(message.content));
+        } else {
+            content.textContent = message.content;
+        }
+
+        section.appendChild(content);
+        answerBox.appendChild(section);
+    });
+
+    renderHistory();
+}
+
+
+    function newChat() {
+        if (isResearching) return;
+
+        currentChatId = null;
+        document.getElementById("question").value = "";
+        document.getElementById("answer").innerHTML = "";
+        const prompt = document.getElementById("chat-prompt");
+        if (prompt) {
+            prompt.style.display = "block";
+        }
+        renderHistory();
+    }
+
+    async function askQuestion() {
+        if (isResearching) return;
+
+        const input = document.getElementById("question");
+       const question = input.value.trim();
+        if (!question) return;
+
+        const prompt = document.getElementById("chat-prompt");
+        if (prompt) {
+            prompt.style.display = "none";
+        }
+
+        isResearching = true;
+
+        const researchBtn = document.getElementById("research-btn");
+        researchBtn.disabled = true;
+        researchBtn.textContent = "Researching...";
+        input.disabled = true;
+
+        let chat = chats.find(c => c.id === currentChatId);
+
+        if (!chat) {
+            chat = {
+                id: Date.now().toString(),
+                title: question.slice(0, 45),
+                messages: []
+            };
+            chats.push(chat);
+            currentChatId = chat.id;
+        }
+
+        chat.messages.push({ role: "user", content: question });
+        saveChats();
+        renderHistory();
+
+        document.getElementById("answer").textContent = "Researching...";
+
+        try {
+            const response = await fetch("/research", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question })
+            });
+
+            if (!response.ok) {
+                throw new Error("Request failed: " + response.status);
+            }
+
+            const data = await response.json();
+            console.log("API response:", data);
+            const answer = data.answer || "No answer returned.";
+
+            chat.messages.push({ role: "assistant", content: answer });
+            saveChats();
+            openChat(chat.id);
+
+            // Clear the search box only after the answer arrives.
+            input.value = "";
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById("answer").textContent =
+                "Research failed. Please try again.";
+        } finally {
+    isResearching = false;
+    console.log("Finally block executed");
+    researchBtn.disabled = false;
+    researchBtn.textContent = "Research";
+    input.disabled = false;
+    renderHistory();
+}
+    }
+
+    // Prevent Enter from submitting a form and refreshing the page.
+    document.getElementById("question").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            askQuestion();
+        }
+    });
+
+    renderHistory();
+</script>
+</body>
+</html>

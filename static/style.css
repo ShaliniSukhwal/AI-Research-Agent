@@ -1,0 +1,296 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #1f2937;
+}
+
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 50px auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+#question {
+    flex: 1;
+    padding: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow: -1px 0px 20px 2px rgba(0, 0, 0, 0.08);
+}
+
+button {
+    padding: 14px 24px;
+    border: none;
+    border-radius: 8px;
+    background: #111827;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+.answer-box {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    min-height: 200px;
+    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */
+}
+
+.answer-box h2 {
+    margin-bottom: 15px;
+}
+
+#answer {
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+
+/* App layout with sidebar */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: #111827;
+    color: white;
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start;
+    overflow-y: auto;
+}
+
+.sidebar h2 {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+#new-chat-btn {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: #374151;
+    border: 1px solid #4b5563;
+    text-align: left;
+}
+
+#history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.history-item {
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+}
+
+.history-item:hover,
+.history-item.active {
+    background: #374151;
+}
+
+/* Main research area */
+.app-layout .container {
+    width: auto;
+    max-width: 900px;
+    flex: 1;
+    margin: 40px auto;
+    padding: 0 24px;
+    min-width: 0;
+}
+
+/* Mobile layout */
+@media (max-width: 650px) {
+    .app-layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    #history-list {
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    .app-layout .container {
+        width: 100%;
+        margin: 24px auto;
+        padding: 0 16px;
+    }
+}
+
+
+/* Chat message alignment */
+.message {
+    max-width: 80%;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.user-message {
+    margin-left: auto;
+    background: #dbeafe;
+    color: #1e3a8a;
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message {
+    margin-right: auto;
+    background: #f3f4f6;
+    color: #1f2937;
+    border-bottom-left-radius: 4px;
+}
+
+.message p {
+    margin-bottom: 10px;
+}
+
+.message p:last-child {
+    margin-bottom: 0;
+}
+
+.message ul,
+.message ol {
+    padding-left: 24px;
+    margin: 8px 0;
+}
+
+.message pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* Full-screen layout without top bar */
+.app-layout {
+    display: flex;
+    height: 100vh;
+    min-height: 100vh;
+    margin-top: 0;
+    align-items: stretch;
+}
+
+/* Full-height sidebar */
+.sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 100vh;
+    align-self: stretch;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+/* Main chat area */
+.app-layout .container {
+    height: 100vh;
+    min-height: 0;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+/* Scrollable answers */
+.answer-box {
+    order: 1;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* Search bar at the bottom */
+.search-box {
+    order: 2;
+    position: sticky;
+    bottom: 0;
+    padding: 12px 0;
+    margin-bottom: 0;
+    z-index: 10;
+}
+
+/* Mobile layout */
+@media (max-width: 650px) {
+    .app-layout {
+        flex-direction: column;
+        height: 100vh;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+    }
+
+    #history-list {
+        max-height: 180px;
+        overflow-y: auto;
+    }
+
+    .app-layout .container {
+        width: 100%;
+        height: auto;
+        flex: 1;
+        margin: 0;
+        padding: 16px;
+    }
+}
+
+
+.chat-prompt {
+    order: 2;
+    flex-shrink: 0;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    padding: 12px 0;
+}
+
+.app-layout .search-box {
+    order: 3;
+}
+
+.app-layout .answer-box {
+    order: 1;
+}
